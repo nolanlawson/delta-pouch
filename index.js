@@ -13,11 +13,11 @@ function empty(obj) {
 }
 
 function isString(obj) {
-  return typeof obj === 'string' || obj instanceof String;
+  return typeof obj === 'string';
 }
 
 function isNumeric(obj) {
-  return !isNaN(obj);
+  return typeof obj === 'number';
 }
 
 function notDefined(obj) {
@@ -36,18 +36,11 @@ exports.deltaInit = function () {
 };
 
 exports.clone = function (obj) {
-  return JSON.parse(JSON.stringify(obj));
+  return utils.clone(obj);
 };
 
 exports.merge = function (obj1, obj2) {
-  var merged = {};
-  for (var i in obj1) {
-    merged[i] = obj1[i];
-  }
-  for (i in obj2) {
-    merged[i] = obj2[i];
-  }
-  return merged;
+  return utils.extend(true, {}, obj1, obj2);
 };
 
 function save(db, doc) {
@@ -208,9 +201,11 @@ function cleanupDoc(db, el, docs, deletions) {
     } else if (docs[el.doc.$id]) { // exists?
       var undef = false;
       for (var k in el.doc) {
-        if (typeof docs[el.doc.$id][k] === 'undefined') {
-          undef = true;
-          break;
+        if (el.doc.hasOwnProperty(k)) {
+          if (typeof docs[el.doc.$id][k] === 'undefined') {
+            undef = true;
+            break;
+          }
         }
       }
       if (undef) {

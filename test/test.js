@@ -61,16 +61,17 @@ function tests(dbName, dbType) {
   }
 
   beforeEach(function () {
+    this.timeout(60000);
     db = new Pouch(dbName);
     return db;
   });
   afterEach(function () {
+    this.timeout(60000);
     return Pouch.destroy(dbName);
   });
 
   describe(dbType + ': delta test suite', function () {
-
-    this.timeout(5000); // increase timeout for TravisCI
+    this.timeout(60000); // increase timeout for TravisCI
 
     function saveTrash() {
       return save({ title: 'take out trash' }).then(function (doc) {
@@ -88,14 +89,18 @@ function tests(dbName, dbType) {
       return db.all().then(function (docs) {
         length(docs).should.equal(length(objs));
         for (var i in objs) {
-          assertContains(docs[i], objs[1]);
+          if (objs.hasOwnProperty(i)) {
+            assertContains(docs[i], objs[1]);
+          }
         }
       });
     }
 
     function assertContains(obj1, obj2) {
       for (var i in obj2) {
-        obj2[i].should.equal(obj1[i]);
+        if (obj2.hasOwnProperty(i)) {
+          obj2[i].should.equal(obj1[i]);
+        }
       }
     }
 
