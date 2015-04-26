@@ -6,10 +6,7 @@ var Promise = utils.Promise;
 var events = require('events');
 
 function empty(obj) {
-  for (var i in obj) { // jshint unused:false
-    return false;
-  }
-  return true;
+  return Object.keys(obj).length === 0;
 }
 
 function isString(obj) {
@@ -216,6 +213,7 @@ function cleanupDoc(db, el, docs, deletions) {
     } else {
       docs[el.doc.$id] = el.doc;
     }
+    return object;
   });
 }
 
@@ -239,8 +237,11 @@ exports.cleanup = function () {
 
     return chain.then(function () {
       if (!empty(deletions)) {
-        return removeDeletions(db, doc, deletions);
+        return removeDeletions(db, doc, deletions).then(function () {
+          return doc;
+        });
       }
+      return doc;
     });
 
   });
